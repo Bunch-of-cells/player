@@ -1,15 +1,18 @@
+#![allow(dead_code)]
 use minimp3::{Decoder as Mp3Decoder, Error as Mp3Error, Frame as Mp3Frame};
+use player::wav::WavConstructor;
+use player::*;
 use spectrum_analyzer::scaling::scale_to_zero_to_one;
 use spectrum_analyzer::{samples_fft_to_spectrum, FrequencyLimit};
 use std::fs::File;
 use std::time::Duration;
-use player::wav::WavConstructor;
-use player::*;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // play_notes("media/instrumental.mp3")?;
 
-    WavConstructor::new(Wave::new(vec![SineWave::from_note(A4)])).write_to_file("media/out.wav", 2.0)?;
+    let wave = Wave::new(vec![SineWave::with_frequency(440.0)]);
+
+    WavConstructor::new(wave).write_to_file("media/out.wav", 2.0)?;
     Ok(())
 }
 

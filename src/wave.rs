@@ -30,7 +30,7 @@ impl Wave {
             .unwrap_or_default()
     }
 
-    pub fn notes(&self) -> &[SineWave] {
+    pub fn waves(&self) -> &[SineWave] {
         &self.waves
     }
 
@@ -40,20 +40,40 @@ impl Wave {
 }
 
 pub struct SineWave {
-    pub frequency: f32,
+    frequency: f32,
     pub freq_comp: f32,
     pub amplitude: f32,
     pub offset: f32,
 }
 
 impl SineWave {
-    pub fn new(freq_comp: f32, amplitude: f32, offset: f32) -> SineWave {
+    pub fn new(freq_comp: f32) -> SineWave {
         SineWave {
             frequency: freq_comp / TAU,
             freq_comp,
-            amplitude,
-            offset,
+            amplitude: 1.0,
+            offset: 0.0,
         }
+    }
+
+    pub fn with_frequency(frequency: f32) -> SineWave {
+        SineWave {
+            frequency,
+            freq_comp: frequency * TAU,
+            amplitude: 1.0,
+            offset: 0.0,
+        }
+    }
+
+    pub fn with_amplitude(mut self, amplitude: f32) -> SineWave {
+        assert!(!(0.0..=1.0).contains(&amplitude));
+        self.amplitude = amplitude;
+        self
+    }
+
+    pub fn with_offset(mut self, offset: f32) -> SineWave {
+        self.offset = offset;
+        self
     }
 
     pub fn at(&self, x: f32) -> f32 {
@@ -67,5 +87,9 @@ impl SineWave {
             amplitude: note.amplitude(),
             offset: 0.0,
         }
+    }
+
+    pub fn frequency(&self) -> f32 {
+        self.frequency
     }
 }
