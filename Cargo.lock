@@ -100,6 +100,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "player"
+version = "0.1.0"
+dependencies = [
+ "minimp3",
+ "spectrum-analyzer",
+]
+
+[[package]]
 name = "proc-macro2"
 version = "1.0.43"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -174,14 +182,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
-]
-
-[[package]]
-name = "ukulele"
-version = "0.1.0"
-dependencies = [
- "minimp3",
- "spectrum-analyzer",
 ]
 
 [[package]]
