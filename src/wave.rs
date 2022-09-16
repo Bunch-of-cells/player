@@ -1,7 +1,8 @@
-use std::f32::consts::TAU;
+use std::{f32::consts::TAU, fmt::Debug};
 
 use crate::Note;
 
+#[derive(Debug, Clone, PartialEq)]
 pub struct Wave {
     waves: Vec<SineWave>,
 }
@@ -22,6 +23,10 @@ impl Wave {
         self.waves.retain(f);
     }
 
+    pub fn add(&mut self, other: Wave) {
+        self.waves.extend(other.waves)
+    }
+
     pub fn frequency(&self) -> f32 {
         self.waves
             .iter()
@@ -39,6 +44,7 @@ impl Wave {
     }
 }
 
+#[derive(Copy, Clone, PartialEq)]
 pub struct SineWave {
     frequency: f32,
     pub freq_comp: f32,
@@ -91,5 +97,15 @@ impl SineWave {
 
     pub fn frequency(&self) -> f32 {
         self.frequency
+    }
+}
+
+impl Debug for SineWave {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}sin({}x - {})",
+            self.amplitude, self.freq_comp, self.offset
+        )
     }
 }
