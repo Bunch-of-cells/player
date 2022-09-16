@@ -10,9 +10,9 @@ pub fn play_notes(
     file: &'static str,
     min_freq: f32,
     max_freq: f32,
+    npb: u32,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let (samples, sampling_rate) = read_mp3_to_mono(file);
-    let batch_2pow = 13u32;
 
     // Hann Window code in lib
     let mut windowed_samples = Vec::with_capacity(samples.len());
@@ -20,7 +20,7 @@ pub fn play_notes(
     for (i, &sample) in samples
         .iter()
         .enumerate()
-        .step_by(2usize.pow(batch_2pow.saturating_sub(13)))
+        .step_by(2usize.pow(npb.saturating_sub(13)))
     {
         let two_pi_i = 2.0 * std::f32::consts::PI * i as f32;
         let idontknowthename = (two_pi_i / samples_len_f32).cos();
@@ -28,7 +28,7 @@ pub fn play_notes(
         windowed_samples.push(multiplier * sample as f32)
     }
 
-    let batch_size = 2usize.pow(batch_2pow);
+    let batch_size = 2usize.pow(npb);
     let batch_duration = batch_size as f32 / sampling_rate as f32;
 
     println!("Sample Count : {:?}", samples.len());

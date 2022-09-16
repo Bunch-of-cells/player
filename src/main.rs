@@ -1,12 +1,8 @@
-use player::{wav::WavConstructor, Device, SineWave, Wave, A4};
-use std::time::Duration;
+use player::*;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // play_notes("media/instrumental.mp3")?;
-
-    let wave = Wave::new(vec![SineWave::from_note(A4)]);
-
-    WavConstructor::mono(wave).write_to_file("media/out.wav", 2.0)?;
-    Device::new()?.beep(440, Duration::from_secs(2))?;
+    // play_notes("media/instrumental.mp3", C4.frequency(), B6.frequency(), 13)?;
+    let wave = Wave::new(vec![SineWave::from_note(C4)]);
+    println!("{:?}", wave);
     Ok(())
 }

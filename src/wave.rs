@@ -2,7 +2,7 @@ use std::{f32::consts::TAU, fmt::Debug};
 
 use crate::Note;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct Wave {
     waves: Vec<SineWave>,
 }
@@ -41,6 +41,19 @@ impl Wave {
 
     pub fn at(&self, x: f32) -> f32 {
         self.waves.iter().map(|wave| wave.at(x)).sum()
+    }
+}
+
+impl Debug for Wave {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut iter = self.waves.iter();
+        if let Some(wave) = iter.next() {
+            write!(f, "{:?}", wave)?;
+        }
+        for wave in iter {
+            write!(f, " + {:?}", wave)?;
+        }
+        Ok(())
     }
 }
 
@@ -102,10 +115,18 @@ impl SineWave {
 
 impl Debug for SineWave {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}sin({}x - {})",
-            self.amplitude, self.freq_comp, self.offset
-        )
+        if self.amplitude != 1.0 {
+            write!(f, "{}", self.amplitude)?;
+        }
+        write!(f, "sin(")?;
+        if self.freq_comp != 1.0 {
+            write!(f, "{} ", self.freq_comp)?;
+        }
+        write!(f, "x")?;
+        if self.offset != 0.0 {
+            write!(f, "- {}", self.offset)?;
+        }
+        write!(f, ")")?;
+        Ok(())
     }
 }
