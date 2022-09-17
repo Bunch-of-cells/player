@@ -67,6 +67,19 @@ impl Note {
     pub const fn amplitude(&self) -> f32 {
         1.0
     }
+
+    #[inline]
+    pub fn closest_note(mut freq: f32) -> Note {
+        freq /= C0.frequency();
+        let mut t = (freq.log2() * 12.0).floor();
+        if 2f32.powf(t + 1.0) - freq <= freq - 2f32.powf(t) {
+            t += 1.0;
+        }
+        let t = t as u32;
+        let octave = t / 12;
+        let note_type = NoteType::in_frequency_order()[(t % 12) as usize];
+        Note::new(note_type, octave)
+    }
 }
 
 impl Display for Note {

@@ -1,10 +1,9 @@
-pub mod beep;
-pub mod napm;
+pub mod generator;
 pub mod note;
 pub mod wav;
 pub mod wave;
 
-pub use beep::{Beep, Device};
-pub use napm::play_notes;
+pub use generator::play_notes;
 pub use note::*;
+pub use wav::{Channel, SampleType, Samples, WavAudio};
 pub use wave::{SineWave, Wave};

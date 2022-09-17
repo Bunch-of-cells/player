@@ -8,8 +8,8 @@ pub struct Wave {
 }
 
 impl Wave {
-    pub fn new(notes: Vec<SineWave>) -> Self {
-        Self { waves: notes }
+    pub fn new(waves: Vec<SineWave>) -> Self {
+        Self { waves }
     }
 
     pub fn add_wave(&mut self, wave: SineWave) {

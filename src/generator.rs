@@ -2,16 +2,15 @@ use minimp3::{Decoder as Mp3Decoder, Error as Mp3Error, Frame as Mp3Frame};
 use spectrum_analyzer::scaling::scale_to_zero_to_one;
 use spectrum_analyzer::{samples_fft_to_spectrum, FrequencyLimit};
 use std::fs::File;
-use std::time::Duration;
 
-use crate::{Beep, Device, Note, NoteType, C0};
+use crate::Note;
 
 pub fn play_notes(
     file: &'static str,
     min_freq: f32,
     max_freq: f32,
     npb: u32,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<Vec<Note>, Box<dyn std::error::Error>> {
     let (samples, sampling_rate) = read_mp3_to_mono(file);
 
     // Hann Window code in lib
@@ -29,56 +28,29 @@ pub fn play_notes(
     }
 
     let batch_size = 2usize.pow(npb);
-    let batch_duration = batch_size as f32 / sampling_rate as f32;
 
-    println!("Sample Count : {:?}", samples.len());
-    println!(
-        "Duration : {:?}s",
-        samples.len() as f32 / sampling_rate as f32
-    );
-    println!("Sampling Rate : {:?}Hz", sampling_rate);
-    println!("Batches : {:?}", windowed_samples.len() / batch_size);
-    println!("Batch Duration : {:?}s", batch_duration);
-    println!("======================================================");
-
-    let loops = windowed_samples.len() / batch_size as usize;
-    let duration = Duration::from_secs_f32(batch_duration);
-    let device = Device::new()?;
-
-    for i in 0..loops {
-        let note = closest_note(
-            samples_fft_to_spectrum(
-                &windowed_samples[(i * batch_size)..][..batch_size],
-                sampling_rate,
-                FrequencyLimit::Range(min_freq, max_freq),
-                Some(&scale_to_zero_to_one),
+    let loops = windowed_samples.len() / batch_size;
+    let notes = (0..loops)
+        .map(|i| {
+            Note::closest_note(
+                samples_fft_to_spectrum(
+                    &windowed_samples[(i * batch_size)..][..batch_size],
+                    sampling_rate,
+                    FrequencyLimit::Range(min_freq, max_freq),
+                    Some(&scale_to_zero_to_one),
+                )
+                .unwrap()
+                .max()
+                .0
+                .val(),
             )
-            .unwrap()
-            .max()
-            .0
-            .val(),
-        );
-        println!("{}", note);
-        device.play_beep(Beep::from_note(note, duration))?;
-    }
+        })
+        .collect();
 
-    Ok(())
+    Ok(notes)
 }
 
-#[inline]
-fn closest_note(mut n: f32) -> Note {
-    n /= C0.frequency();
-    let mut t = (n.log2() * 12.0).floor();
-    if 2f32.powf(t + 1.0) - n <= n - 2f32.powf(t) {
-        t += 1.0;
-    }
-    let t = t as u32;
-    let octave = t / 12;
-    let note_type = NoteType::in_frequency_order()[(t % 12) as usize];
-    Note::new(note_type, octave)
-}
-
-fn read_mp3_to_mono(file: &str) -> (Vec<i16>, u32) {
+pub fn read_mp3_to_mono(file: &str) -> (Vec<i16>, u32) {
     let mut decoder = Mp3Decoder::new(File::open(file).unwrap());
 
     let mut sampling_rate = 0;
